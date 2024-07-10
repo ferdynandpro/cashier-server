@@ -6,7 +6,11 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: ["https://cashier-web-five.vercel.app/login"],
+  methods : ["GET", "POST", "PUT" ,"DELETE"],
+  credentials: true
+}));
 app.use(express.json());
 
 app.get('/', (req, res) => {
