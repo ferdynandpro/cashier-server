@@ -6,8 +6,9 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
 // Middleware
+// const allowedOrigins = ['https://cashier-web-five.vercel.app'];
 app.use(cors({
-  origin: ["https://cashier-web-five.vercel.app/login"],
+  origin: ["https://cashier-web-five.vercel.app"],
   methods : ["GET", "POST", "PUT" ,"DELETE"],
   credentials: true
 }));
