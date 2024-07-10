@@ -9,21 +9,18 @@ require('dotenv').config();
 
 // Middleware
 const allowedOrigins = ['https://cashier-web-five.vercel.app'];
+
 app.use(cors({
   origin: allowedOrigins,
   methods: ["GET", "POST", "PUT", "DELETE"],
-  credentials: true
+  credentials: true,
+  allowedHeaders: ["Content-Type", "Authorization"]
 }));
+app.options('*', cors()); // Preflight request
 app.use(express.json());
 
-app.get('/', (req, res) => {
-  res.send('Hello World!');
-});
-
 // MongoDB configuration
-const uri = "mongodb+srv://mern-product:eJB8vlQTYfr35TCN@cluster0.4etduou.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
-
-// Create a MongoClient with a MongoClientOptions object to set the Stable API version
+const uri = process.env.MONGODB_URI; // Set your MongoDB URI in the .env file
 const client = new MongoClient(uri, {
   serverApi: {
     version: ServerApiVersion.v1,
@@ -32,14 +29,12 @@ const client = new MongoClient(uri, {
   }
 });
 
-const secretKey = 'your_secret_key'; // Ganti dengan secret key Anda yang sebenarnya
+const secretKey = process.env.SECRET_KEY || 'your_secret_key'; // Ganti dengan secret key Anda yang sebenarnya
 
 async function run() {
   try {
-    // Connect the client to the server
     await client.connect();
 
-    // Create collections
     const db = client.db("ProductInventoery");
     const buktiPembayaranCollection = db.collection("bukti-pembayaran");
     const productCollections = db.collection("products");
@@ -260,8 +255,6 @@ async function run() {
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
-    // Ensuring the client will close when you finish/error
-    // await client.close(); // Uncomment if you want to close the connection after running the script
   }
 }
 
