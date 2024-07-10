@@ -1,0 +1,62 @@
+// const { ObjectId } = require('mongodb');
+// const { buktiPembayaranCollection } = require('../models/x');
+
+// async function addPaymentProof(req, res) {
+//   try {
+//     const { tanggal_pembayaran } = req.body;
+//     if (!tanggal_pembayaran) {
+//       return res.status(400).json({ message: "tanggal_pembayaran is required" });
+//     }
+
+//     const result = await buktiPembayaranCollection.insertOne({ tanggal_pembayaran, details: [] });
+//     res.status(201).json({ message: "Payment proof added successfully", result });
+//   } catch (error) {
+//     console.error("Error adding payment proof:", error);
+//     res.status(500).json({ message: "Internal server error" });
+//   }
+// }
+
+// async function addPaymentDetail(req, res) {
+//   try {
+//     const buktiId = req.params.buktiId;
+//     const { detail } = req.body;
+//     if (!detail) {
+//       return res.status(400).json({ message: "Detail is required" });
+//     }
+
+//     const result = await buktiPembayaranCollection.updateOne(
+//       { _id: new ObjectId(buktiId) },
+//       { $push: { details: detail } }
+//     );
+//     res.status(201).json({ message: "Payment detail added successfully", result });
+//   } catch (error) {
+//     console.error("Error adding payment detail:", error);
+//     res.status(500).json({ message: "Internal server error" });
+//   }
+// }
+
+// async function getAllPaymentProofs(req, res) {
+//   try {
+//     const paymentProofs = await buktiPembayaranCollection.find().toArray();
+//     res.status(200).json(paymentProofs);
+//   } catch (error) {
+//     console.error("Error fetching payment proofs:", error);
+//     res.status(500).json({ message: "Internal server error" });
+//   }
+// }
+
+// async function getPaymentDetails(req, res) {
+//   try {
+//     const buktiId = req.params.buktiId;
+//     const paymentProof = await buktiPembayaranCollection.findOne({ _id: new ObjectId(buktiId) });
+//     if (!paymentProof) {
+//       return res.status(404).json({ message: "Payment proof not found" });
+//     }
+//     res.status(200).json(paymentProof.details);
+//   } catch (error) {
+//     console.error("Error fetching payment proof details:", error);
+//     res.status(500).json({ message: "Internal server error" });
+//   }
+// }
+
+// module.exports = { addPaymentProof, addPaymentDetail, getAllPaymentProofs, getPaymentDetails };
