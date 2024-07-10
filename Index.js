@@ -4,12 +4,14 @@ const port = process.env.PORT || 5000;
 const cors = require('cors');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
+require('dotenv').config();
 
 // Middleware
-// const allowedOrigins = ['https://cashier-web-five.vercel.app'];
+const allowedOrigins = ['https://cashier-web-five.vercel.app'];
 app.use(cors({
-  origin: ["https://cashier-web-five.vercel.app"],
-  methods : ["GET", "POST", "PUT" ,"DELETE"],
+  origin: allowedOrigins,
+  methods: ["GET", "POST", "PUT", "DELETE"],
   credentials: true
 }));
 app.use(express.json());
@@ -19,7 +21,6 @@ app.get('/', (req, res) => {
 });
 
 // MongoDB configuration
-const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const uri = "mongodb+srv://mern-product:eJB8vlQTYfr35TCN@cluster0.4etduou.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -35,16 +36,15 @@ const secretKey = 'your_secret_key'; // Ganti dengan secret key Anda yang sebena
 
 async function run() {
   try {
-    // Connect the client to the server (optional starting in v4.7)
+    // Connect the client to the server
     await client.connect();
-    
 
     // Create collections
-    const buktiPembayaranCollection = client.db("ProductInventoery").collection("bukti-pembayaran");
-    const productCollections = client.db("ProductInventoery").collection("products");
-    const usersCollection = client.db("ProductInventoery").collection("users");
-    const logsCollection = client.db("ProductInventoery").collection("logs");
-    
+    const db = client.db("ProductInventoery");
+    const buktiPembayaranCollection = db.collection("bukti-pembayaran");
+    const productCollections = db.collection("products");
+    const usersCollection = db.collection("users");
+    const logsCollection = db.collection("logs");
 
     // Endpoint to add new payment proof
     app.post("/bukti-pembayaran", async (req, res) => {
@@ -255,12 +255,13 @@ async function run() {
         res.status(500).json({ message: "Internal server error" });
       }
     });
-    
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
+    // Ensuring the client will close when you finish/error
+    // await client.close(); // Uncomment if you want to close the connection after running the script
   }
 }
 
