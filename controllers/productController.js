@@ -1,75 +1,46 @@
-// const { ObjectId } = require('mongodb');
-// const { productCollections } = require('../models/x');
+const { ObjectId } = require('mongodb');
 
-// async function addProduct(req, res) {
-//   try {
-//     const data = req.body;
-//     const collection = await productCollections();
-//     const result = await collection.insertOne(data);
-//     res.status(201).json({ message: "Product added successfully", result });
-//   } catch (error) {
-//     console.error("Error adding product:", error);
-//     res.status(500).json({ message: "Internal server error" });
-//   }
-// }
+const uploadProduct = async (req, res) => {
+  const data = req.body;
+  const { productCollections } = req.collections;
+  const result = await productCollections.insertOne(data);
+  res.send(result);
+};
 
-// async function getAllProducts(req, res) {
-//   try {
-//     const collection = await productCollections();
-//     const products = await collection.find().toArray();
-//     res.status(200).json(products);
-//   } catch (error) {
-//     console.error("Error fetching products:", error);
-//     res.status(500).json({ message: "Internal server error" });
-//   }
-// }
+const getAllProducts = async (req, res) => {
+  const { productCollections } = req.collections;
+  const products = productCollections.find();
+  const result = await products.toArray();
+  res.send(result);
+};
 
-// async function getProductById(req, res) {
-//   try {
-//     const id = req.params.id;
-//     const collection = await productCollections();
-//     const product = await collection.findOne({ _id: new ObjectId(id) });
-//     if (!product) {
-//       return res.status(404).json({ message: "Product not found" });
-//     }
-//     res.status(200).json(product);
-//   } catch (error) {
-//     console.error("Error fetching product:", error);
-//     res.status(500).json({ message: "Internal server error" });
-//   }
-// }
+const updateProduct = async (req, res) => {
+  const id = req.params.id;
+  const updateProductData = req.body;
+  const { productCollections } = req.collections;
+  const filter = { _id: new ObjectId(id) };
+  const options = { upsert: true };
 
-// async function updateProduct(req, res) {
-//   try {
-//     const id = req.params.id;
-//     const updateProductData = req.body;
-//     const collection = await productCollections();
-//     const filter = { _id: new ObjectId(id) };
-//     const options = { upsert: true };
+  const updateDoc = { $set: { ...updateProductData } };
 
-//     const updateDoc = {
-//       $set: { ...updateProductData }
-//     };
+  const result = await productCollections.updateOne(filter, updateDoc, options);
+  res.send(result);
+};
 
-//     const result = await collection.updateOne(filter, updateDoc, options);
-//     res.status(200).json({ message: "Product updated successfully", result });
-//   } catch (error) {
-//     console.error("Error updating product:", error);
-//     res.status(500).json({ message: "Internal server error" });
-//   }
-// }
+const deleteProduct = async (req, res) => {
+  const id = req.params.id;
+  const { productCollections } = req.collections;
+  const filter = { _id: new ObjectId(id) };
+  const result = await productCollections.deleteOne(filter);
+  res.send(result);
+};
 
-// async function deleteProduct(req, res) {
-//   try {
-//     const id = req.params.id;
-//     const collection = await productCollections();
-//     const filter = { _id: new ObjectId(id) };
-//     const result = await collection.deleteOne(filter);
-//     res.status(200).json({ message: "Product deleted successfully", result });
-//   } catch (error) {
-//     console.error("Error deleting product:", error);
-//     res.status(500).json({ message: "Internal server error" });
-//   }
-// } 
+const getProductById = async (req, res) => {
+  const id = req.params.id;
+  const { productCollections } = req.collections;
+  const filter = { _id: new ObjectId(id) };
+  const result = await productCollections.findOne(filter);
+  res.send(result);
+};
 
-// module.exports = { addProduct, getAllProducts, getProductById, updateProduct, deleteProduct };
+module.exports = { uploadProduct, getAllProducts, updateProduct, deleteProduct, getProductById };

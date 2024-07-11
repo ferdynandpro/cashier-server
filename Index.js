@@ -5,22 +5,30 @@ const cors = require('cors');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
-require('dotenv').config();
 
 // Middleware
+app.use(express.json());
+
+// CORS configuration
 const allowedOrigins = ['https://cashier-web-five.vercel.app'];
 
 app.use(cors({
-  origin: allowedOrigins,
-  methods: ["GET", "POST", "PUT", "DELETE"],
-  credentials: true,
-  allowedHeaders: ["Content-Type", "Authorization"]
+  origin: function (origin, callback) {
+    // Allow requests with no origin
+    // (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.indexOf(origin) === -1) {
+      const msg = 'The CORS policy for this site does not ' +
+        'allow access from the specified Origin.';
+      return callback(new Error(msg), false);
+    }
+    return callback(null, true);
+  }
 }));
-app.options('*', cors()); // Preflight request
-app.use(express.json());
-
 // MongoDB configuration
-const uri = process.env.MONGODB_URI; // Set your MongoDB URI in the .env file
+const uri = "mongodb+srv://mern-product:eJB8vlQTYfr35TCN@cluster0.4etduou.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
+
+// Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
   serverApi: {
     version: ServerApiVersion.v1,
@@ -29,17 +37,18 @@ const client = new MongoClient(uri, {
   }
 });
 
-const secretKey = process.env.SECRET_KEY || 'your_secret_key'; // Ganti dengan secret key Anda yang sebenarnya
+const secretKey = 'your_secret_key'; // Replace with your actual secret key
 
 async function run() {
   try {
+    // Connect the client to the server (optional starting in v4.7)
     await client.connect();
 
-    const db = client.db("ProductInventoery");
-    const buktiPembayaranCollection = db.collection("bukti-pembayaran");
-    const productCollections = db.collection("products");
-    const usersCollection = db.collection("users");
-    const logsCollection = db.collection("logs");
+    // Create collections
+    const buktiPembayaranCollection = client.db("ProductInventoery").collection("bukti-pembayaran");
+    const productCollections = client.db("ProductInventoery").collection("products");
+    const usersCollection = client.db("ProductInventoery").collection("users");
+    const logsCollection = client.db("ProductInventoery").collection("logs");
 
     // Endpoint to add new payment proof
     app.post("/bukti-pembayaran", async (req, res) => {
@@ -78,7 +87,7 @@ async function run() {
       }
     });
 
-    // Endpoint untuk mendapatkan semua bukti pembayaran beserta detailnya
+    // Endpoint to get all payment proofs
     app.get("/bukti-pembayaran", async (req, res) => {
       try {
         const paymentProofs = await buktiPembayaranCollection.find().toArray();
@@ -89,7 +98,7 @@ async function run() {
       }
     });
 
-    // Endpoint untuk mendapatkan detail pembayaran berdasarkan ID bukti pembayaran
+    // Endpoint to get payment details by buktiId
     app.get("/bukti-pembayaran/:buktiId/detail", async (req, res) => {
       try {
         const buktiId = req.params.buktiId;
@@ -130,7 +139,7 @@ async function run() {
           ...updateProductData
         }
       };
-      // Update
+
       const result = await productCollections.updateOne(filter, updateDoc, options);
       res.send(result);
     });
@@ -255,11 +264,14 @@ async function run() {
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
+    // Ensure the client closes when you're done
+    await client.close();
   }
 }
 
 run().catch(console.dir);
 
+// Start the server
 app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`);
+  console.log(`Server is running on port ${port}`);
 });

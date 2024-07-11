@@ -1,9 +1,8 @@
-// const express = require('express');
-// const { addLogs, getAllLogs } = require('../controllers/logController');
+const express = require('express');
+const { saveLogs, getAllLogs } = require('../controllers/logController');
+const router = express.Router();
 
-// const router = express.Router();
+router.post("/", saveLogs);
+router.get("/", getAllLogs);
 
-// router.post('/', addLogs);
-// router.get('/', getAllLogs);
-
-// module.exports = router;
+module.exports = router;
