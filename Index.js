@@ -1,34 +1,13 @@
 const express = require('express');
 const cors = require('cors');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
+
 const app = express();
 const port = process.env.PORT || 5000;
 
-// Middleware
-app.use(express.json());
-
-// CORS configuration
-const allowedOrigins = ['https://cashier-web-five.vercel.app'];
-
-app.use(cors({
-  origin: function (origin, callback) {
-    if (!origin) return callback(null, true); // Allow requests with no origin
-    if (allowedOrigins.indexOf(origin) === -1) {
-      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
-      return callback(new Error(msg), false);
-    }
-    return callback(null, true);
-  },
-  optionsSuccessStatus: 200 // Some legacy browsers choke on 204
-}));
-
-app.get('/', (req, res) => {
-  res.send('Hello World!');
-});
-
-// MongoDB configuration
-const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const uri = "mongodb+srv://mern-product:eJB8vlQTYfr35TCN@cluster0.4etduou.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
-
 const client = new MongoClient(uri, {
   serverApi: {
     version: ServerApiVersion.v1,
@@ -38,6 +17,18 @@ const client = new MongoClient(uri, {
 });
 
 const secretKey = 'your_secret_key'; // Ganti dengan secret key Anda yang sebenarnya
+
+// Middleware
+app.use(express.json());
+
+// Set CORS options
+const corsOptions = {
+  origin: 'https://cashier-web-five.vercel.app', // Ganti dengan URL frontend Anda
+  methods: 'GET,POST,PUT,DELETE',
+  allowedHeaders: 'Content-Type,Authorization',
+};
+
+app.use(cors(corsOptions));
 
 async function run() {
   try {
@@ -54,7 +45,6 @@ async function run() {
         if (!tanggal_pembayaran) {
           return res.status(400).json({ message: "tanggal_pembayaran is required" });
         }
-
         const result = await buktiPembayaranCollection.insertOne({ tanggal_pembayaran, details: [] });
         res.status(201).json({ message: "Payment proof added successfully", result });
       } catch (error) {
@@ -70,12 +60,10 @@ async function run() {
         if (!detail) {
           return res.status(400).json({ message: "Detail is required" });
         }
-
         const result = await buktiPembayaranCollection.updateOne(
           { _id: new ObjectId(buktiId) },
           { $push: { details: detail } }
         );
-
         res.status(201).json({ message: "Payment detail added successfully", result });
       } catch (error) {
         console.error("Error adding payment detail:", error);
@@ -124,7 +112,6 @@ async function run() {
       const updateProductData = req.body;
       const filter = { _id: new ObjectId(id) };
       const options = { upsert: true };
-
       const updateDoc = {
         $set: {
           ...updateProductData
@@ -151,14 +138,11 @@ async function run() {
     app.post("/register", async (req, res) => {
       try {
         const { username, password } = req.body;
-
         const existingUser = await usersCollection.findOne({ username });
         if (existingUser) {
           return res.status(400).json({ message: "User already exists" });
         }
-
         const hashedPassword = await bcrypt.hash(password, 10);
-
         const newUser = {
           username,
           password: hashedPassword
@@ -174,19 +158,15 @@ async function run() {
     app.post("/login", async (req, res) => {
       try {
         const { username, password } = req.body;
-
         const user = await usersCollection.findOne({ username });
         if (!user) {
           return res.status(400).json({ message: "Invalid username or password" });
         }
-
         const isPasswordValid = await bcrypt.compare(password, user.password);
         if (!isPasswordValid) {
           return res.status(400).json({ message: "Invalid username or password" });
         }
-
         const token = jwt.sign({ userId: user._id, username: user.username }, secretKey, { expiresIn: '1h' });
-
         res.status(200).json({ message: "Login successful", token });
       } catch (error) {
         console.error("Error during login:", error);
@@ -196,16 +176,13 @@ async function run() {
 
     const authenticateToken = (req, res, next) => {
       const token = req.headers['authorization'];
-
       if (!token) {
         return res.status(403).json({ message: 'No token provided' });
       }
-
       jwt.verify(token, secretKey, (err, user) => {
         if (err) {
           return res.status(401).json({ message: 'Invalid token' });
         }
-
         req.user = user;
         next();
       });
@@ -239,12 +216,11 @@ async function run() {
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
-    // Ensure that the client will close when you finish/error
-    // await client.close();
   }
 }
+
 run().catch(console.dir);
 
 app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
+  console.log(`Example app listening on port ${port}`);
 });
