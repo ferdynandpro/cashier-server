@@ -27,9 +27,6 @@ const client = new MongoClient(uri, {
 });
 
 const secretKey = 'your_secret_key'; // Ganti dengan secret key Anda yang sebenarnya
-app.get('/', (req, res) => {
-  res.send('Hello World!');
-});
 
 async function run() {
   try {
