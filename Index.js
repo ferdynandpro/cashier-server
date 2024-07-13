@@ -6,7 +6,12 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: "https://cashier-web-five.vercel.app", // Sesuaikan dengan origin yang benar
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  allowedHeaders: ["Content-Type", "Authorization"], // Sesuaikan dengan headers yang dibutuhkan
+  credentials: true
+}));
 app.use(express.json());
 
 app.get('/', (req, res) => {
@@ -32,14 +37,12 @@ async function run() {
   try {
     // Connect the client to the server (optional starting in v4.7)
     await client.connect();
-    
 
     // Create collections
     const buktiPembayaranCollection = client.db("ProductInventoery").collection("bukti-pembayaran");
     const productCollections = client.db("ProductInventoery").collection("products");
     const usersCollection = client.db("ProductInventoery").collection("users");
     const logsCollection = client.db("ProductInventoery").collection("logs");
-    
 
     // Endpoint to add new payment proof
     app.post("/bukti-pembayaran", async (req, res) => {
@@ -250,7 +253,6 @@ async function run() {
         res.status(500).json({ message: "Internal server error" });
       }
     });
-    
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
