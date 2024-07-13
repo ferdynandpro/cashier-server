@@ -20,7 +20,9 @@ const secretKey = 'your_secret_key'; // Ganti dengan secret key Anda yang sebena
 
 // Middleware
 app.use(express.json());
-
+app.get('/', (req, res) => {
+  res.send('Hello World!');
+});
 // Set CORS options
 const corsOptions = {
   origin: 'https://cashier-web-five.vercel.app', // Ganti dengan URL frontend Anda
