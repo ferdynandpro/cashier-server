@@ -28,6 +28,23 @@ const client = new MongoClient(uri, {
 
 const secretKey = 'your_secret_key'; // Ganti dengan secret key Anda yang sebenarnya
 
+<<<<<<< HEAD
+=======
+// Middleware
+app.use(express.json());
+app.get('/', (req, res) => {
+  res.send('Hello World!');
+});
+// Set CORS options
+const corsOptions = {
+  origin: 'https://cashier-web-five.vercel.app', // Ganti dengan URL frontend Anda
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true,
+};
+
+app.use(cors(corsOptions));
+
+>>>>>>> 53cfce6480d76ffdce885c480148ea625981f07b
 async function run() {
   try {
     // Connect the client to the server (optional starting in v4.7)
