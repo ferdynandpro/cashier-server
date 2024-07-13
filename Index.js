@@ -24,8 +24,9 @@ app.use(express.json());
 // Set CORS options
 const corsOptions = {
   origin: 'https://cashier-web-five.vercel.app', // Ganti dengan URL frontend Anda
-  methods: 'GET,POST,PUT,DELETE',
-  allowedHeaders: 'Content-Type,Authorization',
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true,
 };
 
 app.use(cors(corsOptions));
