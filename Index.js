@@ -5,15 +5,21 @@ const cors = require('cors');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
-// Middleware
+// Middleware CORS
 app.use(cors({
   origin: '*', // Mengizinkan semua origin (tidak disarankan untuk produksi)
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
-app.use(express.json());
+// Middleware untuk logging
+app.use((req, res, next) => {
+  console.log(`Request URL: ${req.url}`);
+  console.log(`Request Method: ${req.method}`);
+  next();
+});
 
+app.use(express.json());
 
 // MongoDB configuration
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
@@ -34,14 +40,12 @@ async function run() {
   try {
     // Connect the client to the server (optional starting in v4.7)
     await client.connect();
-    
 
     // Create collections
     const buktiPembayaranCollection = client.db("ProductInventoery").collection("bukti-pembayaran");
     const productCollections = client.db("ProductInventoery").collection("products");
     const usersCollection = client.db("ProductInventoery").collection("users");
     const logsCollection = client.db("ProductInventoery").collection("logs");
-    
 
     // Endpoint to add new payment proof
     app.post("/bukti-pembayaran", async (req, res) => {
