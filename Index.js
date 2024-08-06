@@ -7,8 +7,11 @@ const jwt = require('jsonwebtoken');
 
 // Middleware
 app.use(cors({
-  origin : '*'
+  origin: '*', // Mengizinkan semua origin (tidak disarankan untuk produksi)
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
+
 app.use(express.json());
 
 
